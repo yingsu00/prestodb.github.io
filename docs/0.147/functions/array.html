@@ -76,12 +76,6 @@
 </dd></dl>
 
 <dl class="function">
-<dt id="flatten">
-<tt class="descname">flatten</tt><big>(</big><em>x</em><big>)</big> &rarr; array</dt>
-<dd><p>Flattens an <tt class="docutils literal"><span class="pre">array(array(T))</span></tt> to an <tt class="docutils literal"><span class="pre">array(T)</span></tt> by concatenating the contained arrays.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="array_intersect">
 <tt class="descname">array_intersect</tt><big>(</big><em>x</em>, <em>y</em><big>)</big> &rarr; array</dt>
 <dd><p>Returns an array of the elements in the intersection of <tt class="docutils literal"><span class="pre">x</span></tt> and <tt class="docutils literal"><span class="pre">y</span></tt>, without duplicates.</p>
@@ -151,30 +145,36 @@ If <tt class="docutils literal"><span class="pre">index</span></tt> &lt; 0, <tt 
 </dd></dl>
 
 <dl class="function">
-<dt id="slice">
-<tt class="descname">slice</tt><big>(</big><em>x</em>, <em>start</em>, <em>length</em><big>)</big> &rarr; array</dt>
-<dd><p>Subsets array <tt class="docutils literal"><span class="pre">x</span></tt> starting from index <tt class="docutils literal"><span class="pre">start</span></tt> (or starting from the end if <tt class="docutils literal"><span class="pre">start</span></tt> is negative) with a length
-of <tt class="docutils literal"><span class="pre">length</span></tt>.</p>
+<dt id="flatten">
+<tt class="descname">flatten</tt><big>(</big><em>x</em><big>)</big> &rarr; array</dt>
+<dd><p>Flattens an <tt class="docutils literal"><span class="pre">array(array(T))</span></tt> to an <tt class="docutils literal"><span class="pre">array(T)</span></tt> by concatenating the contained arrays.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="sequence">
-<tt class="descname">sequence</tt><big>(</big><em>start bigint</em>, <em>stop bigint</em><big>)</big> &rarr; array&lt;bigint&gt;</dt>
-<dd><p>Generate a sequence of integers from <tt class="docutils literal"><span class="pre">start</span></tt> to <tt class="docutils literal"><span class="pre">stop</span></tt>, incrementing by 1 if <tt class="docutils literal"><span class="pre">start</span> <span class="pre">&lt;=</span> <span class="pre">stop</span></tt> and -1 if
-<tt class="docutils literal"><span class="pre">start</span> <span class="pre">&gt;</span> <span class="pre">stop</span></tt>.</p>
+<tt class="descname">sequence</tt><big>(</big><em>start</em>, <em>stop</em><big>)</big> &rarr; array&lt;bigint&gt;</dt>
+<dd><p>Generate a sequence of integers from <tt class="docutils literal"><span class="pre">start</span></tt> to <tt class="docutils literal"><span class="pre">stop</span></tt>, incrementing
+by <tt class="docutils literal"><span class="pre">1</span></tt> if <tt class="docutils literal"><span class="pre">start</span></tt> is less than or equal to <tt class="docutils literal"><span class="pre">stop</span></tt>, otherwise <tt class="docutils literal"><span class="pre">-1</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
-<tt class="descname">sequence</tt><big>(</big><em>start bigint</em>, <em>stop bigint</em>, <em>step bigint</em><big>)</big> &rarr; array&lt;bigint&gt;</dt>
-<dd><p>Generate a sequence of integers from <tt class="docutils literal"><span class="pre">start</span></tt> to <tt class="docutils literal"><span class="pre">stop</span></tt> incrementing by <tt class="docutils literal"><span class="pre">step</span></tt>.</p>
+<tt class="descname">sequence</tt><big>(</big><em>start</em>, <em>stop</em>, <em>step</em><big>)</big> &rarr; array&lt;bigint&gt;</dt>
+<dd><p>Generate a sequence of integers from <tt class="docutils literal"><span class="pre">start</span></tt> to <tt class="docutils literal"><span class="pre">stop</span></tt>, incrementing by <tt class="docutils literal"><span class="pre">step</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
-<tt class="descname">sequence</tt><big>(</big><em>start timestamp</em>, <em>stop timestamp</em>, <em>step interval</em><big>)</big> &rarr; array&lt;timestamp&gt;</dt>
-<dd><p>Generate a sequence of timestamps from <tt class="docutils literal"><span class="pre">start</span></tt> to <tt class="docutils literal"><span class="pre">stop</span></tt> incrementing by <tt class="docutils literal"><span class="pre">step</span></tt>. The type of the <tt class="docutils literal"><span class="pre">step</span></tt>
-parameter can be either <tt class="docutils literal"><span class="pre">INTERVAL</span> <span class="pre">DAY</span> <span class="pre">TO</span> <span class="pre">SECOND</span></tt> or <tt class="docutils literal"><span class="pre">INTERVAL</span> <span class="pre">YEAR</span> <span class="pre">TO</span> <span class="pre">MONTH</span></tt>.</p>
+<tt class="descname">sequence</tt><big>(</big><em>start</em>, <em>stop</em>, <em>step</em><big>)</big> &rarr; array&lt;timestamp&gt;</dt>
+<dd><p>Generate a sequence of timestamps from <tt class="docutils literal"><span class="pre">start</span></tt> to <tt class="docutils literal"><span class="pre">stop</span></tt>, incrementing by <tt class="docutils literal"><span class="pre">step</span></tt>.
+The type of <tt class="docutils literal"><span class="pre">step</span></tt> can be either <tt class="docutils literal"><span class="pre">INTERVAL</span> <span class="pre">DAY</span> <span class="pre">TO</span> <span class="pre">SECOND</span></tt> or <tt class="docutils literal"><span class="pre">INTERVAL</span> <span class="pre">YEAR</span> <span class="pre">TO</span> <span class="pre">MONTH</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="slice">
+<tt class="descname">slice</tt><big>(</big><em>x</em>, <em>start</em>, <em>length</em><big>)</big> &rarr; array</dt>
+<dd><p>Subsets array <tt class="docutils literal"><span class="pre">x</span></tt> starting from index <tt class="docutils literal"><span class="pre">start</span></tt> (or starting from the end
+if <tt class="docutils literal"><span class="pre">start</span></tt> is negative) with a length of <tt class="docutils literal"><span class="pre">length</span></tt>.</p>
 </dd></dl>
 
 </div>
