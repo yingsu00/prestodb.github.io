@@ -57,6 +57,7 @@
 <ul class="simple">
 <li>Fix regression that could cause queries involving <code class="docutils literal"><span class="pre">JOIN</span></code> and certain language features
 such as <code class="docutils literal"><span class="pre">current_date</span></code>, <code class="docutils literal"><span class="pre">current_time</span></code> or <code class="docutils literal"><span class="pre">extract</span></code> to fail during planning.</li>
+<li>Limit the maximum allowed input size to <a class="reference internal" href="../functions/string.html#levenshtein_distance" title="levenshtein_distance"><code class="xref py py-func docutils literal"><span class="pre">levenshtein_distance()</span></code></a>.</li>
 <li>Improve performance of <a class="reference internal" href="../functions/aggregate.html#map_agg" title="map_agg"><code class="xref py py-func docutils literal"><span class="pre">map_agg()</span></code></a> and <a class="reference internal" href="../functions/aggregate.html#multimap_agg" title="multimap_agg"><code class="xref py py-func docutils literal"><span class="pre">multimap_agg()</span></code></a>.</li>
 <li>Improve memory accounting when grouping on a single <code class="docutils literal"><span class="pre">BIGINT</span></code> column.</li>
 </ul>
