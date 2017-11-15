@@ -100,8 +100,6 @@ yet supported).</li>
 running arbitrary SQL on behalf of users. For programmatic use, continuing
 to use <code class="docutils literal"><span class="pre">setCatalog()</span></code> and <code class="docutils literal"><span class="pre">setSchema()</span></code> on <code class="docutils literal"><span class="pre">Connection</span></code> is recommended.</li>
 <li>Allow executing <code class="docutils literal"><span class="pre">SET</span> <span class="pre">SESSION</span></code> and <code class="docutils literal"><span class="pre">RESET</span> <span class="pre">SESSION</span></code>.</li>
-<li>Change mapping for columns with <code class="docutils literal"><span class="pre">DECIMAL(p,s)</span></code> data type from Presto <code class="docutils literal"><span class="pre">DOUBLE</span></code>
-type to the corresponding Presto <code class="docutils literal"><span class="pre">DECIMAL</span></code> type.</li>
 </ul>
 </div>
 <div class="section" id="resource-group-changes">
@@ -115,6 +113,13 @@ type to the corresponding Presto <code class="docutils literal"><span class="pre
 <ul class="simple">
 <li>Do not require setting <code class="docutils literal"><span class="pre">hive.metastore.uri</span></code> when using the file metastore.</li>
 <li>Reduce memory usage when reading string columns from ORC or DWRF files.</li>
+</ul>
+</div>
+<div class="section" id="mysql-postgresql-redshift-and-sql-server-changes">
+<h2>MySQL, PostgreSQL, Redshift, and SQL Server Changes</h2>
+<ul class="simple">
+<li>Change mapping for columns with <code class="docutils literal"><span class="pre">DECIMAL(p,s)</span></code> data type from Presto <code class="docutils literal"><span class="pre">DOUBLE</span></code>
+type to the corresponding Presto <code class="docutils literal"><span class="pre">DECIMAL</span></code> type.</li>
 </ul>
 </div>
 <div class="section" id="kafka-changes">
