@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://prestodb.io/blog</id>
+    <title> Blog</title>
+    <updated>2019-06-12T06:00:00Z</updated>
+    <generator>Feed for Node.js</generator>
+    <link rel="alternate" href="https://prestodb.io/blog"/>
+    <subtitle>The best place to stay up-to-date with the latest  news and events.</subtitle>
+    <logo>https://prestodb.io/img/presto.png</logo>
+    <rights>Copyright © 2013-2019 Facebook</rights>
+    <entry>
+        <title type="html"><![CDATA[Introducing PrestoDB Blog]]></title>
+        <id>https://prestodb.io/blog/2019/06/12/introducing-preto-db-blog.html</id>
+        <link href="https://prestodb.io/blog/2019/06/12/introducing-preto-db-blog.html">
+        </link>
+        <updated>2019-06-12T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>Presto is a key piece of data infrastructure at many companies. The community has many ongoing projects for taking it to new levels of performance and functionality plus unique experience and insight into challenges of scale.</p> <p>We are opening this blog ...</p>]]></summary>
+        <author>
+            <name>Orri Erling</name>
+            <uri>http://code.fb.com/</uri>
+        </author>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Everything You Always Wanted To Do in Table Scan]]></title>
+        <id>https://prestodb.io/blog/2019/06/12/everything-you-always-wanted-to-do-in-a-table-scan.html</id>
+        <link href="https://prestodb.io/blog/2019/06/12/everything-you-always-wanted-to-do-in-a-table-scan.html">
+        </link>
+        <updated>2019-06-12T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>Orri Erling, Maria Basmanova, Ying Su, Timothy Meehan, Elon Azoulay</p> <p>Table scan, on the face of it, sounds trivial and boring. What’s there in just reading a long bunch of records from first to last? Aren’t indexing and other kinds of physical design ...</p>]]></summary>
+        <author>
+            <name>Orri Erling</name>
+            <uri>http://code.fb.com/</uri>
+        </author>
+    </entry>
+</feed>
