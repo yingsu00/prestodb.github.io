@@ -4,7 +4,7 @@
         <title> Blog</title>
         <link>https://prestodb.io/blog</link>
         <description>The best place to stay up-to-date with the latest  news and events.</description>
-        <lastBuildDate>Wed, 12 Jun 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Fri, 28 Jun 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -14,18 +14,23 @@
         </image>
         <copyright>Copyright © 2013-2019 Facebook</copyright>
         <item>
-            <title><![CDATA[Introducing PrestoDB Blog]]></title>
-            <link>https://prestodb.io/blog/2019/06/12/introducing-preto-db-blog.html</link>
-            <guid>https://prestodb.io/blog/2019/06/12/introducing-preto-db-blog.html</guid>
-            <pubDate>Wed, 12 Jun 2019 06:00:00 GMT</pubDate>
+            <title><![CDATA[Introducing the Presto blog]]></title>
+            <link>https://prestodb.io/blog/2019/06/28/introducing-the-presto-blog.html</link>
+            <guid>https://prestodb.io/blog/2019/06/28/introducing-the-presto-blog.html</guid>
+            <pubDate>Fri, 28 Jun 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p>Presto is a key piece of data infrastructure at many companies. The community has many ongoing projects for taking it to new levels of performance and functionality plus unique experience and insight into challenges of scale.</p> <p>We are opening this blog ...</p>]]></description>
         </item>
         <item>
             <title><![CDATA[Everything You Always Wanted To Do in Table Scan]]></title>
-            <link>https://prestodb.io/blog/2019/06/12/everything-you-always-wanted-to-do-in-a-table-scan.html</link>
-            <guid>https://prestodb.io/blog/2019/06/12/everything-you-always-wanted-to-do-in-a-table-scan.html</guid>
-            <pubDate>Wed, 12 Jun 2019 06:00:00 GMT</pubDate>
-            <description><![CDATA[<p>Orri Erling, Maria Basmanova, Ying Su, Timothy Meehan, Elon Azoulay</p> <p>Table scan, on the face of it, sounds trivial and boring. What’s there in just reading a long bunch of records from first to last? Aren’t indexing and other kinds of physical design ...</p>]]></description>
+            <link>https://prestodb.io/blog/2019/06/28/everything-you-always-wanted-to-do-in-a-table-scan.html</link>
+            <guid>https://prestodb.io/blog/2019/06/28/everything-you-always-wanted-to-do-in-a-table-scan.html</guid>
+            <pubDate>Fri, 28 Jun 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>Orri Erling, Maria Basmanova, Ying Su, Timothy Meehan, Elon Azoulay</p>
+<p>Table scan, on the face of it, sounds trivial and boring. What’s there in just reading a long bunch of records from first to last? Aren’t indexing and other kinds of physical design more interesting?</p>
+<p>As data has gotten bigger, the columnar table scan has only gotten more prominent. The columnar scan is a fairly safe baseline operation: The cost of writing data is low, the cost of reading it is predictable.</p>
+<p>Another factor that makes the table scan the main operation is the omnipresent denormalization in data warehouse. This only goes further as a result of ubiquitous use of lists and maps and other non-first normal form data.</p>
+<p>The aim of this series of articles is to lay out the full theory and practice of table scan with all angles covered. We will see that this is mostly a matter of common sense and systematic application of a few principles: Do not do extra work and do the work that you do always in bulk. Many systems like Google’s BigQuery do some subset of the optimizations outlined here. Doing all of these is however far from universal in the big data world, so there is a point in laying this all out and making a model implementation on top of Presto. We are here talking about the ORC format, but the same things apply equally to Parquet or JSON shredded into columns.</p>
+]]></description>
         </item>
     </channel>
 </rss>

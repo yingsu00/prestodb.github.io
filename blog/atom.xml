@@ -2,18 +2,18 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prestodb.io/blog</id>
     <title> Blog</title>
-    <updated>2019-06-12T06:00:00Z</updated>
+    <updated>2019-06-28T06:00:00Z</updated>
     <generator>Feed for Node.js</generator>
     <link rel="alternate" href="https://prestodb.io/blog"/>
     <subtitle>The best place to stay up-to-date with the latest  news and events.</subtitle>
     <logo>https://prestodb.io/img/presto.png</logo>
     <rights>Copyright © 2013-2019 Facebook</rights>
     <entry>
-        <title type="html"><![CDATA[Introducing PrestoDB Blog]]></title>
-        <id>https://prestodb.io/blog/2019/06/12/introducing-preto-db-blog.html</id>
-        <link href="https://prestodb.io/blog/2019/06/12/introducing-preto-db-blog.html">
+        <title type="html"><![CDATA[Introducing the Presto blog]]></title>
+        <id>https://prestodb.io/blog/2019/06/28/introducing-the-presto-blog.html</id>
+        <link href="https://prestodb.io/blog/2019/06/28/introducing-the-presto-blog.html">
         </link>
-        <updated>2019-06-12T06:00:00Z</updated>
+        <updated>2019-06-28T06:00:00Z</updated>
         <summary type="html"><![CDATA[<p>Presto is a key piece of data infrastructure at many companies. The community has many ongoing projects for taking it to new levels of performance and functionality plus unique experience and insight into challenges of scale.</p> <p>We are opening this blog ...</p>]]></summary>
         <author>
             <name>Orri Erling</name>
@@ -22,11 +22,16 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Everything You Always Wanted To Do in Table Scan]]></title>
-        <id>https://prestodb.io/blog/2019/06/12/everything-you-always-wanted-to-do-in-a-table-scan.html</id>
-        <link href="https://prestodb.io/blog/2019/06/12/everything-you-always-wanted-to-do-in-a-table-scan.html">
+        <id>https://prestodb.io/blog/2019/06/28/everything-you-always-wanted-to-do-in-a-table-scan.html</id>
+        <link href="https://prestodb.io/blog/2019/06/28/everything-you-always-wanted-to-do-in-a-table-scan.html">
         </link>
-        <updated>2019-06-12T06:00:00Z</updated>
-        <summary type="html"><![CDATA[<p>Orri Erling, Maria Basmanova, Ying Su, Timothy Meehan, Elon Azoulay</p> <p>Table scan, on the face of it, sounds trivial and boring. What’s there in just reading a long bunch of records from first to last? Aren’t indexing and other kinds of physical design ...</p>]]></summary>
+        <updated>2019-06-28T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>Orri Erling, Maria Basmanova, Ying Su, Timothy Meehan, Elon Azoulay</p>
+<p>Table scan, on the face of it, sounds trivial and boring. What’s there in just reading a long bunch of records from first to last? Aren’t indexing and other kinds of physical design more interesting?</p>
+<p>As data has gotten bigger, the columnar table scan has only gotten more prominent. The columnar scan is a fairly safe baseline operation: The cost of writing data is low, the cost of reading it is predictable.</p>
+<p>Another factor that makes the table scan the main operation is the omnipresent denormalization in data warehouse. This only goes further as a result of ubiquitous use of lists and maps and other non-first normal form data.</p>
+<p>The aim of this series of articles is to lay out the full theory and practice of table scan with all angles covered. We will see that this is mostly a matter of common sense and systematic application of a few principles: Do not do extra work and do the work that you do always in bulk. Many systems like Google’s BigQuery do some subset of the optimizations outlined here. Doing all of these is however far from universal in the big data world, so there is a point in laying this all out and making a model implementation on top of Presto. We are here talking about the ORC format, but the same things apply equally to Parquet or JSON shredded into columns.</p>
+]]></summary>
         <author>
             <name>Orri Erling</name>
             <uri>http://code.fb.com/</uri>
