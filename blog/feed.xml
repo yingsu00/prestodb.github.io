@@ -4,7 +4,7 @@
         <title> Blog</title>
         <link>https://prestodb.io/blog</link>
         <description>The best place to stay up-to-date with the latest  news and events.</description>
-        <lastBuildDate>Sat, 29 Jun 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 23 Jul 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -13,6 +13,15 @@
             <link>https://prestodb.io/blog</link>
         </image>
         <copyright>Copyright © 2013-2019 Facebook</copyright>
+        <item>
+            <title><![CDATA[Complete Table Scan: A Quantitative Assessment]]></title>
+            <link>https://prestodb.io/blog/2019/07/23/complete-table-scan.html</link>
+            <guid>https://prestodb.io/blog/2019/07/23/complete-table-scan.html</guid>
+            <pubDate>Tue, 23 Jul 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>In the previous article we looked at the abstract problem statement and possibilities inherent in scanning tables. In this piece we look at the quantitative upside with Presto. We look at a number of queries and explain the findings.</p>
+<p>The initial impulse motivating this work is the observation that table scan is by far the #1 operator in Presto workloads I have seen. This is a little over half of all Presto CPU, with repartitioning a distant second, at around 1/10 of the total. The other half of the motivation is ready opportunity: Presto in its pre-Aria state does almost none of the things that are common in table scan.</p>
+]]></description>
+        </item>
         <item>
             <title><![CDATA[Everything You Always Wanted To Do in Table Scan]]></title>
             <link>https://prestodb.io/blog/2019/06/29/everything-you-always-wanted-to-do-in-a-table-scan.html</link>

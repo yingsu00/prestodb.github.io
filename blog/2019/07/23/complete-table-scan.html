@@ -1,0 +1,217 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Complete Table Scan: A Quantitative Assessment · </title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="In the previous article we looked at the abstract problem statement and possibilities inherent in scanning tables. In this piece we look at the quantitative upside with Presto. We look at a number of queries and explain the findings."/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Complete Table Scan: A Quantitative Assessment · "/><meta property="og:type" content="website"/><meta property="og:url" content="https://prestodb.io/blog/2019/07/23/complete-table-scan"/><meta property="og:description" content="In the previous article we looked at the abstract problem statement and possibilities inherent in scanning tables. In this piece we look at the quantitative upside with Presto. We look at a number of queries and explain the findings."/><meta property="og:image" content="https://prestodb.io/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://prestodb.io/img/docusaurus.png"/><link rel="shortcut icon" href="/img/presto-logo.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/presto.png" alt=""/><h2 class="headerTitleWithLogo"></h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/overview.html" target="_self">OVERVIEW</a></li><li class=""><a href="/docs/current" target="_self">DOCS</a></li><li class=""><a href="/index.html" target="_self">BLOG</a></li><li class=""><a href="/faq.html" target="_self">FAQ</a></li><li class=""><a href="/community.html" target="_self">COMMUNITY</a></li><li class=""><a href="/resources.html" target="_self">RESOURCES</a></li><li class=""><a href="https://github.com/facebook/presto" target="_self">GITHUB</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Recent Posts</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Recent Posts</h3><ul class=""><li class="navListItem navListItemActive"><a class="navItem" href="/blog/2019/07/23/complete-table-scan">Complete Table Scan: A Quantitative Assessment</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/06/29/everything-you-always-wanted-to-do-in-a-table-scan">Everything You Always Wanted To Do in Table Scan</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/06/28/introducing-the-presto-blog">Introducing the Presto blog</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer postContainer blogContainer"><div class="wrapper"><div class="lonePost"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle"><a href="/blog/2019/07/23/complete-table-scan">Complete Table Scan: A Quantitative Assessment</a></h1><p class="post-meta">July 23, 2019</p><div class="authorBlock"><p class="post-authorName"><a href="https://www.linkedin.com/in/orrierling/" target="_blank" rel="noreferrer noopener">Orri Erling</a></p><div class="authorPhoto"><a href="https://www.linkedin.com/in/orrierling/" target="_blank" rel="noreferrer noopener"><img src="https://graph.facebook.com/100026224749124/picture/?height=200&amp;width=200" alt="Orri Erling"/></a></div></div></header><div><span><p>In the previous article we looked at the abstract problem statement and possibilities inherent in scanning tables. In this piece we look at the quantitative upside with Presto. We look at a number of queries and explain the findings.</p>
+<p>The initial impulse motivating this work is the observation that table scan is by far the #1 operator in Presto workloads I have seen. This is a little over half of all Presto CPU, with repartitioning a distant second, at around 1/10 of the total. The other half of the motivation is ready opportunity: Presto in its pre-Aria state does almost none of the things that are common in table scan.</p>
+<!--truncate-->
+<p>For easy reproducibility and staying away from proprietary material, we use a TPC-H dataset at scale factor 100 running on a desktop machine with two sockets and four hyperthreaded Skylake cores per socket clocked at 3.5GHz. The data is compressed with Snappy and we are running with warm OS cache. The Presto is a modified 0.221 where the Aria functionality can be switched on and off. Not to worry, we will talk about disaggregated storage and IO in due time but the basics will come first.</p>
+<h1><a class="anchor" aria-hidden="true" id="simple-scan"></a><a href="#simple-scan" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Simple scan</h1>
+<p>The base case for scan optimization is the simplest possible query:</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">SUM</span>(extendedprice)
+<span class="hljs-keyword">FROM</span> lineitem
+<span class="hljs-keyword">WHERE</span> suppkey = <span class="hljs-number">12345</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>2</td><td>14.2</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>3</td><td>29.0</td><td>2.04</td></tr>
+</tbody>
+</table>
+<p>This is a 2x win for the most basic case. This selects approximately 600 rows from 600 million rows and spends all its time in scan. It is here worthwhile to step through exactly how each implementation does this, as we need to understand this when analyzing the more complex cases.</p>
+<h2><a class="anchor" aria-hidden="true" id="mechanics-of-a-scan"></a><a href="#mechanics-of-a-scan" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mechanics of a scan</h2>
+<p>Baseline Presto does this as follows: The <code>OrcPageSource</code> produces consecutive <code>Page</code> instances that contain a <code>LazyBlock</code> for each column. This operation as such takes no time since the <code>LazyBlock</code> instances are just promises. The actual work takes place when evaluating the generated code for the comparison. This sees that the column is not loaded, loads all the values in the range of the <code>LazyBlock</code>, typically 1024 values and then does the operation and produces a set of passing row numbers. This set is empty for all but 1/100k of the cases. If this is empty, the <code>LazyBlock</code> for <code>extendedprice</code> is not touched. If there are hits, the <code>extendedprice</code> <code>LazyBlock</code> is loaded and the values for the selected rows are copied out. When this happens, 1024 values are decoded from the column and most often one of them is accessed. Loading a <code>LazyBlock</code> allocates memory for each value. In the present case this becomes garbage immediately after first use. The same applies to the values in extended price, of which only one is copied to a <code>Block</code> of output. This is handled by a special buffering stage that accumulates rows from multiple loaded <code>LazyBlock</code> instances until there is a minimum batch worth of rows to pass to the next operator.</p>
+<p>The Aria implementation works as follows: The <code>OrcRecordReader</code> has an adaptable column order. It reads up to a full row group worth of data for the first column. When decoding the encoded values, it applies a callback to each value. The callback will either test the value and record the row number for passing values or copy out the value into a results buffer of the column or both. In the case of <code>suppkey = 12345</code> we only record the row number. Since for virtually all row groups there is no hit we do not touch the second column. If there is a hit, we touch the hit rows of the second column. This has the effect of copying the decoded value into the column's result buffer. We keep going from row group to row group until enough data has been accumulated, at which point we return it as a <code>Page</code>. The <code>Block</code> instances in the <code>Page</code> are loaded and may either be views into the column reader's buffers or copies of the data, depending on what kind of downstream operator we have. If the downstream operator does not keep references to memory of processed <code>Block</code> instances, we can reuse the memory, which is owned by the column readers.</p>
+<h2><a class="anchor" aria-hidden="true" id="allocation-overhead"></a><a href="#allocation-overhead" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Allocation overhead</h2>
+<p>We execute the query three times with both baseline and Aria and consider the top 5 memory allocations:</p>
+<p>Aria:</p>
+<pre><code class="hljs css language-java"><span class="hljs-number">12378062280</span> <span class="hljs-number">54.03</span>% <span class="hljs-number">3261</span> <span class="hljs-keyword">byte</span>[] (out)
+
+<span class="hljs-number">1137340888</span> <span class="hljs-number">4.96</span>% <span class="hljs-number">1881</span> java.lang.Object[]
+
+<span class="hljs-number">1058280112</span> <span class="hljs-number">4.62</span>% <span class="hljs-number">764</span> <span class="hljs-keyword">byte</span>[]
+
+<span class="hljs-number">941224808</span> <span class="hljs-number">4.11</span>% <span class="hljs-number">280</span> com.facebook.presto.orc.metadata.statistics.ColumnStatistics
+
+<span class="hljs-number">908822304</span> <span class="hljs-number">3.97</span>% <span class="hljs-number">272</span> com.facebook.presto.orc.proto.OrcProto$ColumnStatistics
+</code></pre>
+<p>Baseline:</p>
+<pre><code class="hljs css language-java"><span class="hljs-number">12370936336</span> <span class="hljs-number">28.75</span>% <span class="hljs-number">3146</span> <span class="hljs-keyword">byte</span>[] (out)
+
+<span class="hljs-number">9689400112</span> <span class="hljs-number">22.52</span>% <span class="hljs-number">2399</span> <span class="hljs-keyword">long</span>[]
+
+<span class="hljs-number">4661750784</span> <span class="hljs-number">10.84</span>% <span class="hljs-number">1128</span> com.facebook.presto.spi.block.LongArrayBlock
+
+<span class="hljs-number">2551827928</span> <span class="hljs-number">5.93</span>% <span class="hljs-number">766</span> <span class="hljs-keyword">boolean</span>[]
+
+<span class="hljs-number">1289650912</span> <span class="hljs-number">3.00</span>% <span class="hljs-number">1982</span> java.lang.Object[]
+</code></pre>
+<p>In both cases, the top item is <code>byte[]</code>, which comes from most often allocating new memory for raw data read from the ORC file. There is no reason whatever to do this. There is another Aria fix that saves another 10% by fixing this but this is not in scope here. We will talk about what to do with this allocation when we cover smart IO and buffering in later articles.</p>
+<p>The main difference is that the <code>long[]</code> allocation for <code>suppkey</code> values that are tested once and then dropped on the floor are gone. The other observation is that there is a lot of memory allocated for column row group statistics. Again there is no need for allocation and even if these were allocated, there is no need to read stats for columns that have no filters. The use of the stats is here to eliminate row groups based on column min/max. The current implementation reads stats for all columns of the table in any case. For larger queries this is not that significant, but this does stand out in this minimal case.</p>
+<h1><a class="anchor" aria-hidden="true" id="complex-queries"></a><a href="#complex-queries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Complex queries</h1>
+<h2><a class="anchor" aria-hidden="true" id="reduced-materialization"></a><a href="#reduced-materialization" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reduced materialization</h2>
+<p>We have now covered the core basics. Let's see how these play out with more complex queries.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*), <span class="hljs-keyword">SUM</span>(extendedprice), <span class="hljs-keyword">SUM</span>(quantity)
+<span class="hljs-keyword">FROM</span> lineitem
+<span class="hljs-keyword">WHERE</span> partkey <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">10000000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">10200000</span> <span class="hljs-keyword">AND</span> suppkey <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">500000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">510000</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>4</td><td>41.5</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>6</td><td>72</td><td>1.73</td></tr>
+</tbody>
+</table>
+<p>In this example there is a 1/10K selection that consists of two 1/100 filters. With <code>LazyBlock</code>, the two first columns are materialized in their entirety and 1/10th of the last two columns is materialized because we have on the average one hit in a row group and 1K rows get materialized for each load. In Aria we materialize none of this, which is the principal difference, much as in the previous example.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">sum</span> (partkey)
+<span class="hljs-keyword">FROM</span> lineitem
+<span class="hljs-keyword">WHERE</span> quantity &lt; <span class="hljs-number">10</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>2</td><td>23.4</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>5</td><td>49.5</td><td>2.11</td></tr>
+</tbody>
+</table>
+<p>Here we read with less selectivity, taking 1/5 of the rows.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">MAX</span>(orderkey), <span class="hljs-keyword">MAX</span>(partkey), <span class="hljs-keyword">MAX</span>(suppkey)
+<span class="hljs-keyword">FROM</span> lineitem
+<span class="hljs-keyword">WHERE</span> suppkey &gt; <span class="hljs-number">0</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>4</td><td>37.8</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>4</td><td>54.9</td><td>1.45</td></tr>
+</tbody>
+</table>
+<p>Here we read all rows. The difference is not very large since there is only so much that can be done when having to decode and copy everything. The principal inefficiency of baseline is <code>BlockBuilder</code> and again the fact of always allocating new memory. The main point of this query is to show that the techniques used here are never worse than baseline.</p>
+<h2><a class="anchor" aria-hidden="true" id="filter-reordering"></a><a href="#filter-reordering" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Filter reordering</h2>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">count</span> (*)
+<span class="hljs-keyword">FROM</span> lineitem
+<span class="hljs-keyword">WHERE</span> partkey &lt; <span class="hljs-number">19000000</span> <span class="hljs-keyword">AND</span> suppkey &lt; <span class="hljs-number">900000</span> <span class="hljs-keyword">AND</span> quantity &lt; <span class="hljs-number">45</span> <span class="hljs-keyword">AND</span> extendedprice &lt; <span class="hljs-number">9000</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>5</td><td>52</td><td>1.0</td></tr>
+<tr><td>Aria w/no reordering</td><td>5</td><td>57</td><td>1.09</td></tr>
+<tr><td>Baseline</td><td>7</td><td>96</td><td>1.84</td></tr>
+</tbody>
+</table>
+<p>Here we have a conjunction of low selectivity filters, each true approximately 9/10 of the time. We are running Aria with and without filter reordering. We see about 10% gain from reordering even in a situation where the difference between different filter orders is small. We discussed the basic principle of reordering in <a href="/blog/2019/06/29/everything-you-always-wanted-to-do-in-a-table-scan">Everything You Always Wanted To Do in Table Scan</a>. Measure the time per dropped row and put the fastest first.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*), <span class="hljs-keyword">MAX</span>(partkey)
+<span class="hljs-keyword">FROM</span> hive.tpch.lineitem
+<span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">comment</span> <span class="hljs-keyword">LIKE</span> <span class="hljs-string">'%fur%'</span> <span class="hljs-keyword">AND</span> partkey + <span class="hljs-number">1</span> &lt; <span class="hljs-number">19000000</span> <span class="hljs-keyword">AND</span> suppkey + <span class="hljs-number">1</span> &lt; <span class="hljs-number">100000</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>7</td><td>98.7</td><td>1.0</td></tr>
+<tr><td>Aria w/no reordering</td><td>24</td><td>339</td><td>3.43</td></tr>
+<tr><td>Baseline</td><td>25</td><td>361</td><td>3.65</td></tr>
+</tbody>
+</table>
+<p>Here we have a case where adaptivity makes a large difference with expensive filter expressions. The key to the puzzle is that the conjunct on <code>partkey</code> is cheap and selects 1/10. The like is 1/5 and expensive. The <code>partkey</code> is cheap and 19/20. Putting <code>suppkey</code> first wins the race. This happens without any reliance on statistics or pre-execution optimization and will adapt at run time if the data properties change.</p>
+<h2><a class="anchor" aria-hidden="true" id="more-flexible-filters"></a><a href="#more-flexible-filters" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>More flexible filters</h2>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*), <span class="hljs-keyword">SUM</span>(extendedprice)
+<span class="hljs-keyword">FROM</span> lineitem
+<span class="hljs-keyword">WHERE</span> shipmode <span class="hljs-keyword">LIKE</span> <span class="hljs-string">'%AIR%'</span> <span class="hljs-keyword">AND</span> shipinstruct <span class="hljs-keyword">LIKE</span> <span class="hljs-string">'%PERSON'</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>4</td><td>44.2</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>21</td><td>271</td><td>6.13</td></tr>
+</tbody>
+</table>
+<p>The filtered columns are of low cardinality and are encoded as dictionaries. This is an example of evaluating an expensive predicate on only distinct values. Baseline Presto misses the opportunity because all filters are generated into a monolithic code block. Aria generates filter expressions for each distinct set of required columns. In this case the filters are independent and reorderable.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*), <span class="hljs-keyword">SUM</span>(extendedprice)
+<span class="hljs-keyword">FROM</span> lineitem
+<span class="hljs-keyword">WHERE</span> shipmode <span class="hljs-keyword">LIKE</span> <span class="hljs-string">'%AIR%'</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>4</td><td>38.5</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>5</td><td>52.9</td><td>1.37</td></tr>
+</tbody>
+</table>
+<p>When we select on only one column, baseline Presto can use its dictionary aware filter and the difference drops to the usual magnitude.</p>
+<h2><a class="anchor" aria-hidden="true" id="try-aria"></a><a href="#try-aria" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Try Aria</h2>
+<p>The prototype of Aria is <a href="https://github.com/aweisberg/presto/tree/aria-scan-prototype">available</a> to experiment with along with <a href="https://github.com/aweisberg/presto/blob/aria-scan-prototype/BENCHMARK.md">instructions</a> on how to try these queries yourself.</p>
+<p>The ideas presented here are currently being integrated into mainline Presto.</p>
+<h1><a class="anchor" aria-hidden="true" id="conclusions-and-next-steps"></a><a href="#conclusions-and-next-steps" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Conclusions and Next Steps</h1>
+<p>We have so far had a look at the low-hanging fruits for scanning flat tables. These techniques are widely known and their use in Presto are a straightforward way to improve it.</p>
+<p>In the next installment we will look at more complex cases having to do with operating on variously nested lists, structs and maps. After this we will talk about experiences of implementation and considerations of efficient use of Java.</p>
+</span></div></div><div class="blogSocialSection"></div></div><div class="blog-recent"><a class="button" href="/blog">Recent Posts</a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#mechanics-of-a-scan">Mechanics of a scan</a></li><li><a href="#allocation-overhead">Allocation overhead</a></li><li><a href="#reduced-materialization">Reduced materialization</a></li><li><a href="#filter-reordering">Filter reordering</a></li><li><a href="#more-flexible-filters">More flexible filters</a></li><li><a href="#try-aria">Try Aria</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="copyright">Copyright © 2013-2019 Facebook</section></footer></div></body></html>

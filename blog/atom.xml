@@ -2,12 +2,26 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prestodb.io/blog</id>
     <title> Blog</title>
-    <updated>2019-06-29T06:00:00Z</updated>
+    <updated>2019-07-23T06:00:00Z</updated>
     <generator>Feed for Node.js</generator>
     <link rel="alternate" href="https://prestodb.io/blog"/>
     <subtitle>The best place to stay up-to-date with the latest  news and events.</subtitle>
     <logo>https://prestodb.io/img/presto.png</logo>
     <rights>Copyright © 2013-2019 Facebook</rights>
+    <entry>
+        <title type="html"><![CDATA[Complete Table Scan: A Quantitative Assessment]]></title>
+        <id>https://prestodb.io/blog/2019/07/23/complete-table-scan.html</id>
+        <link href="https://prestodb.io/blog/2019/07/23/complete-table-scan.html">
+        </link>
+        <updated>2019-07-23T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>In the previous article we looked at the abstract problem statement and possibilities inherent in scanning tables. In this piece we look at the quantitative upside with Presto. We look at a number of queries and explain the findings.</p>
+<p>The initial impulse motivating this work is the observation that table scan is by far the #1 operator in Presto workloads I have seen. This is a little over half of all Presto CPU, with repartitioning a distant second, at around 1/10 of the total. The other half of the motivation is ready opportunity: Presto in its pre-Aria state does almost none of the things that are common in table scan.</p>
+]]></summary>
+        <author>
+            <name>Orri Erling</name>
+            <uri>https://www.linkedin.com/in/orrierling/</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Everything You Always Wanted To Do in Table Scan]]></title>
         <id>https://prestodb.io/blog/2019/06/29/everything-you-always-wanted-to-do-in-a-table-scan.html</id>
