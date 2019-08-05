@@ -2,12 +2,28 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prestodb.io/blog</id>
     <title> Blog</title>
-    <updated>2019-07-23T06:00:00Z</updated>
+    <updated>2019-08-05T06:00:00Z</updated>
     <generator>Feed for Node.js</generator>
     <link rel="alternate" href="https://prestodb.io/blog"/>
     <subtitle>The best place to stay up-to-date with the latest  news and events.</subtitle>
     <logo>https://prestodb.io/img/presto.png</logo>
     <rights>Copyright © 2013-2019 Facebook</rights>
+    <entry>
+        <title type="html"><![CDATA[Presto Unlimited: MPP SQL Engine at Scale]]></title>
+        <id>https://prestodb.io/blog/2019/08/05/presto-unlimited-mpp-database-at-scale.html</id>
+        <link href="https://prestodb.io/blog/2019/08/05/presto-unlimited-mpp-database-at-scale.html">
+        </link>
+        <updated>2019-08-05T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>Wenlei Xie, Andrii Rosa, Shixuan Fan, Rebecca Schlussel, Tim Meehan</p>
+<p>Presto is an open source distributed SQL query engine for running analytic queries against data sources of all sizes ranging from gigabytes to petabytes.</p>
+<p>Presto was originally designed for interactive use cases, however, after seeing the merit in having a single interface for both batch and interactive, it is now also used heavily for processing batch workloads [6]. As a concrete example, more than 80% of new warehouse batch workloads at Facebook are developed on Presto. Its flexible “connector” design makes it possible to run queries against heterogeneous data sources — such as joining together Hive and MySQL tables without preloading the data.</p>
+<p>However, memory-intensive (many TBs) and long-running (multiple hours) queries have been major pain points for Presto users. It is difficult to reason how much memory queries will use and when it will hit memory limit, and failures in long-running queries cause retries which create landing time variance. To improve user experience and scale MPP Database to large ETL workloads, we started this Presto Unlimited project.</p>
+]]></summary>
+        <author>
+            <name>Wenlei Xie</name>
+            <uri>https://www.linkedin.com/in/wenleix/</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Complete Table Scan: A Quantitative Assessment]]></title>
         <id>https://prestodb.io/blog/2019/07/23/complete-table-scan.html</id>

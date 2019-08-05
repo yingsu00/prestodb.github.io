@@ -4,7 +4,7 @@
         <title> Blog</title>
         <link>https://prestodb.io/blog</link>
         <description>The best place to stay up-to-date with the latest  news and events.</description>
-        <lastBuildDate>Tue, 23 Jul 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 05 Aug 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -13,6 +13,17 @@
             <link>https://prestodb.io/blog</link>
         </image>
         <copyright>Copyright © 2013-2019 Facebook</copyright>
+        <item>
+            <title><![CDATA[Presto Unlimited: MPP SQL Engine at Scale]]></title>
+            <link>https://prestodb.io/blog/2019/08/05/presto-unlimited-mpp-database-at-scale.html</link>
+            <guid>https://prestodb.io/blog/2019/08/05/presto-unlimited-mpp-database-at-scale.html</guid>
+            <pubDate>Mon, 05 Aug 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>Wenlei Xie, Andrii Rosa, Shixuan Fan, Rebecca Schlussel, Tim Meehan</p>
+<p>Presto is an open source distributed SQL query engine for running analytic queries against data sources of all sizes ranging from gigabytes to petabytes.</p>
+<p>Presto was originally designed for interactive use cases, however, after seeing the merit in having a single interface for both batch and interactive, it is now also used heavily for processing batch workloads [6]. As a concrete example, more than 80% of new warehouse batch workloads at Facebook are developed on Presto. Its flexible “connector” design makes it possible to run queries against heterogeneous data sources — such as joining together Hive and MySQL tables without preloading the data.</p>
+<p>However, memory-intensive (many TBs) and long-running (multiple hours) queries have been major pain points for Presto users. It is difficult to reason how much memory queries will use and when it will hit memory limit, and failures in long-running queries cause retries which create landing time variance. To improve user experience and scale MPP Database to large ETL workloads, we started this Presto Unlimited project.</p>
+]]></description>
+        </item>
         <item>
             <title><![CDATA[Complete Table Scan: A Quantitative Assessment]]></title>
             <link>https://prestodb.io/blog/2019/07/23/complete-table-scan.html</link>

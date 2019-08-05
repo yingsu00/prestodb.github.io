@@ -1,0 +1,136 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Presto Unlimited: MPP SQL Engine at Scale · </title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Wenlei Xie, Andrii Rosa, Shixuan Fan, Rebecca Schlussel, Tim Meehan"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Presto Unlimited: MPP SQL Engine at Scale · "/><meta property="og:type" content="website"/><meta property="og:url" content="https://prestodb.io/blog/2019/08/05/presto-unlimited-mpp-database-at-scale"/><meta property="og:description" content="Wenlei Xie, Andrii Rosa, Shixuan Fan, Rebecca Schlussel, Tim Meehan"/><meta property="og:image" content="https://prestodb.io/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://prestodb.io/img/docusaurus.png"/><link rel="shortcut icon" href="/img/presto-logo.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/presto.png" alt=""/><h2 class="headerTitleWithLogo"></h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/overview.html" target="_self">OVERVIEW</a></li><li class=""><a href="/docs/current" target="_self">DOCS</a></li><li class=""><a href="/index.html" target="_self">BLOG</a></li><li class=""><a href="/faq.html" target="_self">FAQ</a></li><li class=""><a href="/community.html" target="_self">COMMUNITY</a></li><li class=""><a href="/resources.html" target="_self">RESOURCES</a></li><li class=""><a href="https://github.com/facebook/presto" target="_self">GITHUB</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Recent Posts</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Recent Posts</h3><ul class=""><li class="navListItem navListItemActive"><a class="navItem" href="/blog/2019/08/05/presto-unlimited-mpp-database-at-scale">Presto Unlimited: MPP SQL Engine at Scale</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/07/23/complete-table-scan">Complete Table Scan: A Quantitative Assessment</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/06/29/everything-you-always-wanted-to-do-in-a-table-scan">Everything You Always Wanted To Do in Table Scan</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/06/28/introducing-the-presto-blog">Introducing the Presto blog</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer postContainer blogContainer"><div class="wrapper"><div class="lonePost"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle"><a href="/blog/2019/08/05/presto-unlimited-mpp-database-at-scale">Presto Unlimited: MPP SQL Engine at Scale</a></h1><p class="post-meta">August 5, 2019</p><div class="authorBlock"><p class="post-authorName"><a href="https://www.linkedin.com/in/wenleix/" target="_blank" rel="noreferrer noopener">Wenlei Xie</a></p><div class="authorPhoto"><a href="https://www.linkedin.com/in/wenleix/" target="_blank" rel="noreferrer noopener"><img src="https://graph.facebook.com/681470066/picture/?height=200&amp;width=200" alt="Wenlei Xie"/></a></div></div></header><div><span><p>Wenlei Xie, Andrii Rosa, Shixuan Fan, Rebecca Schlussel, Tim Meehan</p>
+<p>Presto is an open source distributed SQL query engine for running analytic queries against data sources of all sizes ranging from gigabytes to petabytes.</p>
+<p>Presto was originally designed for interactive use cases, however, after seeing the merit in having a single interface for both batch and interactive, it is now also used heavily for processing batch workloads [6]. As a concrete example, more than 80% of new warehouse batch workloads at Facebook are developed on Presto. Its flexible “connector” design makes it possible to run queries against heterogeneous data sources — such as joining together Hive and MySQL tables without preloading the data.</p>
+<p>However, memory-intensive (many TBs) and long-running (multiple hours) queries have been major pain points for Presto users. It is difficult to reason how much memory queries will use and when it will hit memory limit, and failures in long-running queries cause retries which create landing time variance. To improve user experience and scale MPP Database to large ETL workloads, we started this Presto Unlimited project.</p>
+<!--truncate-->
+<h2><a class="anchor" aria-hidden="true" id="grouped-execution"></a><a href="#grouped-execution" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Grouped Execution</h2>
+<p><a href="https://github.com/prestodb/presto/pull/8951">Grouped execution</a> was developed to scale Presto to run memory-intensive queries by leveraging table partitioning. See <a href="https://github.com/prestodb/presto/wiki/Stage-and-Source-Scheduler-and-Grouped-Execution">Stage and Source Scheduler and Grouped Execution</a> for information about how it works.</p>
+<p>Consider the following query, where table <code>customer</code> and <code>orders</code> are already bucketed on <code>custkey</code>:</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> ...
+<span class="hljs-keyword">FROM</span> customer <span class="hljs-keyword">JOIN</span> orders
+<span class="hljs-keyword">USING</span> custkey
+</code></pre>
+<p>Without grouped execution, the workers will build hash table using all the data on the build side (Table <code>orders</code>):</p>
+<p><img src="/img/blog/2019-08-05-presto-unlimited-mpp-database-at-scale/ungrouped.png" alt="Ungrouped Execution"></p>
+<p>However, since <code>customer</code> and <code>orders</code> are already bucketed, Presto can schedule the query execution in a more intelligent way to reduce peak memory consumption: for each bucket <code>i</code>, joining the bucket <code>i</code> on table <code>customer</code> and <code>orders</code> can be done independently! In Presto engine, we call this computation unit a “lifespan”:</p>
+<p><img src="/img/blog/2019-08-05-presto-unlimited-mpp-database-at-scale/grouped.png" alt="Grouped Execution"></p>
+<p>Grouped execution has been enabled in Facebook's production environment for over a year, and supports queries that would otherwise require tens of TBs, in some cases over 100 TB, of distributed memory.</p>
+<h2><a class="anchor" aria-hidden="true" id="presto-unlimited"></a><a href="#presto-unlimited" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Presto Unlimited</h2>
+<p>In this section we are going to introduce the two projects we worked on in the last half, aimed at the two pain points discussed in the introduction section:</p>
+<ul>
+<li>Exchange materialization for memory-intensive queries (many TBs)</li>
+<li>Recoverable grouped execution for long-running queries (multiple hours)</li>
+</ul>
+<p>A few initial production pipelines in Facebook warehouse are already benefiting from these two features.</p>
+<h3><a class="anchor" aria-hidden="true" id="exchange-materialization"></a><a href="#exchange-materialization" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Exchange Materialization</h3>
+<p>While grouped execution serves as the foundation for scaling Presto to large batch queries, it doesn't work for non-bucketed tables. In order to make grouped execution work for such cases, we could materialize the exchange by writing data into intermediate bucketed tables.</p>
+<p>Consider the same example query, the original simplified plan will be like the following:</p>
+<p><img src="/img/blog/2019-08-05-presto-unlimited-mpp-database-at-scale/remote_exchange.png" alt="Remote Exchange"></p>
+<p>While the default remote network exchange is efficient and fast, it requires all the join workers to run concurrently.
+Materializing intermediate exchange data to disk opens opportunities for more flexible job scheduling, and using less memory by scheduling a group of lifespans at the same time.</p>
+<p>When exchanges are materialized, the plan will first be “sectioned”, and <code>ExchangeNode</code> will be replaced by <code>TableWriterNode</code>/<code>TableFinishNode</code> and <code>TableScanNode</code>:</p>
+<p><img src="/img/blog/2019-08-05-presto-unlimited-mpp-database-at-scale/materialized_exchange.png" alt="Remote Exchange"></p>
+<p>As a starting point, we introduced a new configuration to allow a query to materialize all exchanges (<code>exchange_materialization_strategy</code>). In the future, whether to materialize exchanges can be decided by Cost-Based Optimizer, or even user hints, in order to seek a better trade-off between reliability and efficiency.</p>
+<p>For more details, please see the design doc at <a href="https://github.com/prestodb/presto/issues/12387">#12387</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="recoverable-grouped-execution"></a><a href="#recoverable-grouped-execution" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Recoverable Grouped Execution</h3>
+<p>Grouped execution also enables partial query failure recovery, as now each lifespan of the query is independent and can be retried independently. As illustrated in the following figure:</p>
+<p><img src="/img/blog/2019-08-05-presto-unlimited-mpp-database-at-scale/grouped_recovery.png" alt="Remote Exchange"></p>
+<p>For more details, please see the design doc at <a href="https://github.com/prestodb/presto/issues/12124">#12124</a></p>
+<h2><a class="anchor" aria-hidden="true" id="future-work"></a><a href="#future-work" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Future Work</h2>
+<p>We are also thinking about the following future work:</p>
+<ul>
+<li><p>Fault-Tolerant Exchange Execution</p>
+<ul>
+<li>With exchange materialization and recoverable grouped execution, the only reason that a single worker failure can fail the query is during the exchange stage.</li>
+<li>The long term, the solution is to implement MapReduce-style shuffle, or integrate with a fault-tolerant distributed shuffle service such as <a href="https://databricks.com/session/cosco-an-efficient-facebook-scale-shuffle-service">Cosco</a> or <a href="https://crail.incubator.apache.org/">Crail</a>.</li>
+<li>The short term plan is to support recoverability for each execution section. Thus the query can restart from the last checkpoint instead of the beginning.</li>
+</ul></li>
+<li><p>Reliable and Scalable Coordinator</p>
+<ul>
+<li>The coordinator becomes a single point of failure once query execution can survive worker failures.</li>
+<li>Coordinator high-availability and scalability is a crucial future work for Presto Unlimited project.</li>
+</ul></li>
+<li><p>Resource Management for Presto Unlimited</p>
+<ul>
+<li>With more larger queries onboard we need to actively monitor whether the current resource management needs improvement and adapt to the potential workload shifts introduced by Presto Unlimited.</li>
+<li>Lifespan provides a unit for resource management at fine granularity in addition to being a smaller unit of retry. This opens opportunities for fine-grained resource management.</li>
+</ul></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="parallel-databases-meet-mapreduce"></a><a href="#parallel-databases-meet-mapreduce" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parallel Databases Meet MapReduce</h2>
+<p>With Presto Unlimited, Presto executes large ETL queries in a similar way to MapReduce. Consider the following simple aggregation query:</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> custkey, <span class="hljs-keyword">SUM</span>(totalprice)
+<span class="hljs-keyword">FROM</span> orders
+<span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> custkey
+</code></pre>
+<p>The following figure illustrates how the query will be executed with Presto Unlimited:</p>
+<p><img src="/img/blog/2019-08-05-presto-unlimited-mpp-database-at-scale/presto_unlimited_exec.png" alt="Presto Unlimited Execution"></p>
+<p>In comparison, here is how the query will be executed without Presto Unlimited:</p>
+<p><img src="/img/blog/2019-08-05-presto-unlimited-mpp-database-at-scale/presto_normal_exec.png" alt="Presto Normal Execution"></p>
+<p>Spilling is used in parallel databases to support memory-intensive queries [5, 7]. Note spilling and Presto Unlimited leverage the same fundamental idea: first partition data into intermediate result, and operate on a small chunk of data at a time to reduce peak memory usage. Spilling does this in a <em>lazy</em> fashion: it only writes intermediate data when the join/aggregate is running out of memory, while Presto Unlimited <em>eagerly</em> materializing intermediate results prior to the join/aggregation execution. This MapReduce-style execution also allows much easier fault-tolerance implementation, as each partition can be retried independently.</p>
+<p>During the last decade, the standard approach to support SQL at scale is to build parallel database on a MapReduce-like runtime: Tenzing [1], Hive [2], SCOPE [3], SparkSQL [4], F1 Query [5], etc.</p>
+<p>To the best of our knowledge, Presto Unlimited is the first attempt to meet parallel database and MapReduce in a different direction, as it brings MapReduce-style execution to the parallel database.</p>
+<h2><a class="anchor" aria-hidden="true" id="reference"></a><a href="#reference" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference</h2>
+<p>[1] <a href="https://ai.google/research/pubs/pub37200">Tenzing A SQL Implementation On The MapReduce Framework</a></p>
+<p>[2] <a href="https://www.facebook.com/notes/facebook-engineering/hive-a-petabyte-scale-data-warehouse-using-hadoop/89508453919/">Hive - A Petabyte Scale Data Warehouse using Hadoop</a></p>
+<p>[3] <a href="https://dl.acm.org/citation.cfm?id=2387351">SCOPE: parallel databases meet MapReduce</a></p>
+<p>[4] <a href="https://dl.acm.org/citation.cfm?id=2742797">Spark SQL: Relational Data Processing in Spark</a></p>
+<p>[5] <a href="https://ai.google/research/pubs/pub47224">F1 Query: Declarative Querying at Scale</a></p>
+<p>[6] <a href="https://research.fb.com/publications/presto-sql-on-everything/">Presto: SQL on Everything</a></p>
+<p>[7] <a href="https://dl.acm.org/citation.cfm?id=2595636">HAWQ: A Massively Parallel Processing SQL Engine in Hadoop</a></p>
+</span></div></div><div class="blogSocialSection"></div></div><div class="blog-recent"><a class="button" href="/blog">Recent Posts</a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#grouped-execution">Grouped Execution</a></li><li><a href="#presto-unlimited">Presto Unlimited</a><ul class="toc-headings"><li><a href="#exchange-materialization">Exchange Materialization</a></li><li><a href="#recoverable-grouped-execution">Recoverable Grouped Execution</a></li></ul></li><li><a href="#future-work">Future Work</a></li><li><a href="#parallel-databases-meet-mapreduce">Parallel Databases Meet MapReduce</a></li><li><a href="#reference">Reference</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="copyright">Copyright © 2013-2019 Facebook</section></footer></div></body></html>
