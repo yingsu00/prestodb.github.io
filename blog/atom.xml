@@ -39,6 +39,19 @@
         </author>
     </entry>
     <entry>
+        <title type="html"><![CDATA[Memory Management in Presto]]></title>
+        <id>https://prestodb.io/blog/2019/07/19/memory-tracking.html</id>
+        <link href="https://prestodb.io/blog/2019/07/19/memory-tracking.html">
+        </link>
+        <updated>2019-07-19T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>In a multi-tenant system like Presto careful memory management is required to keep the system stable and prevent individual queries from taking over all the resources. However, tracking the memory usage of data structures in an application (Presto) running on the Java Virtual Machine (JVM) requires a significant amount of work. In addition, Presto is a distributed system, which makes the problem more complicated. This post provides an overview of how memory management works in Presto, and provides info about the various memory management related JMX counters/endpoints that can be used for monitoring production clusters.</p>
+]]></summary>
+        <author>
+            <name>Nezih Yigitbasi</name>
+            <uri>https://www.linkedin.com/in/nezihyigitbasi/</uri>
+        </author>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Everything You Always Wanted To Do in Table Scan]]></title>
         <id>https://prestodb.io/blog/2019/06/29/everything-you-always-wanted-to-do-in-a-table-scan.html</id>
         <link href="https://prestodb.io/blog/2019/06/29/everything-you-always-wanted-to-do-in-a-table-scan.html">
@@ -61,7 +74,7 @@
         <link href="https://prestodb.io/blog/2019/06/28/introducing-the-presto-blog.html">
         </link>
         <updated>2019-06-28T06:00:00Z</updated>
-        <summary type="html"><![CDATA[<p>Presto is a key piece of data infrastructure at many companies. The community has many ongoing projects for taking it to new levels of performance and functionality plus unique experience and insight into challenges of scale.</p> <p>We are opening this blog ...</p>]]></summary>
+        <summary type="html"><![CDATA[<p>Presto is a key piece of data infrastructure at many companies. The community has many ongoing projects for taking it to new levels of performance and functionality plus unique experience and insight into challenges of scale.</p> <p>We are opening this blog...</p>]]></summary>
         <author>
             <name>Orri Erling</name>
             <uri>https://www.linkedin.com/in/orrierling/</uri>
