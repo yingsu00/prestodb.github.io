@@ -4,7 +4,7 @@
         <title> Blog</title>
         <link>https://prestodb.io/blog</link>
         <description>The best place to stay up-to-date with the latest  news and events.</description>
-        <lastBuildDate>Mon, 05 Aug 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 19 Aug 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -13,6 +13,14 @@
             <link>https://prestodb.io/blog</link>
         </image>
         <copyright>Copyright © 2013-2019 Facebook</copyright>
+        <item>
+            <title><![CDATA[Memory Management in Presto]]></title>
+            <link>https://prestodb.io/blog/2019/08/19/memory-tracking.html</link>
+            <guid>https://prestodb.io/blog/2019/08/19/memory-tracking.html</guid>
+            <pubDate>Mon, 19 Aug 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>In a multi-tenant system like Presto careful memory management is required to keep the system stable and prevent individual queries from taking over all the resources. However, tracking the memory usage of data structures in an application (Presto) running on the Java Virtual Machine (JVM) requires a significant amount of work. In addition, Presto is a distributed system, which makes the problem more complicated. This post provides an overview of how memory management works in Presto, and provides info about the various memory management related JMX counters/endpoints that can be used for monitoring production clusters.</p>
+]]></description>
+        </item>
         <item>
             <title><![CDATA[Presto Unlimited: MPP SQL Engine at Scale]]></title>
             <link>https://prestodb.io/blog/2019/08/05/presto-unlimited-mpp-database-at-scale.html</link>
@@ -31,14 +39,6 @@
             <pubDate>Tue, 23 Jul 2019 06:00:00 GMT</pubDate>
             <description><![CDATA[<p>In the previous article we looked at the abstract problem statement and possibilities inherent in scanning tables. In this piece we look at the quantitative upside with Presto. We look at a number of queries and explain the findings.</p>
 <p>The initial impulse motivating this work is the observation that table scan is by far the #1 operator in Presto workloads I have seen. This is a little over half of all Presto CPU, with repartitioning a distant second, at around 1/10 of the total. The other half of the motivation is ready opportunity: Presto in its pre-Aria state does almost none of the things that are common in table scan.</p>
-]]></description>
-        </item>
-        <item>
-            <title><![CDATA[Memory Management in Presto]]></title>
-            <link>https://prestodb.io/blog/2019/07/19/memory-tracking.html</link>
-            <guid>https://prestodb.io/blog/2019/07/19/memory-tracking.html</guid>
-            <pubDate>Fri, 19 Jul 2019 06:00:00 GMT</pubDate>
-            <description><![CDATA[<p>In a multi-tenant system like Presto careful memory management is required to keep the system stable and prevent individual queries from taking over all the resources. However, tracking the memory usage of data structures in an application (Presto) running on the Java Virtual Machine (JVM) requires a significant amount of work. In addition, Presto is a distributed system, which makes the problem more complicated. This post provides an overview of how memory management works in Presto, and provides info about the various memory management related JMX counters/endpoints that can be used for monitoring production clusters.</p>
 ]]></description>
         </item>
         <item>
