@@ -7,7 +7,7 @@
     <link rel="alternate" href="https://prestodb.io/blog"/>
     <subtitle>The best place to stay up-to-date with the latest  news and events.</subtitle>
     <logo>https://prestodb.io/img/presto.png</logo>
-    <rights>Copyright © 2013-2019 Facebook</rights>
+    <rights>Copyright © 2013-2019 Presto Foundation</rights>
     <entry>
         <title type="html"><![CDATA[Memory Management in Presto]]></title>
         <id>https://prestodb.io/blog/2019/08/19/memory-tracking.html</id>
