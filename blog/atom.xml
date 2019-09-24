@@ -2,12 +2,24 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prestodb.io/blog</id>
     <title> Blog</title>
-    <updated>2019-08-19T06:00:00Z</updated>
+    <updated>2019-09-23T06:00:00Z</updated>
     <generator>Feed for Node.js</generator>
     <link rel="alternate" href="https://prestodb.io/blog"/>
     <subtitle>The best place to stay up-to-date with the latest  news and events.</subtitle>
     <logo>https://prestodb.io/img/presto.png</logo>
     <rights>Copyright © 2013-2019 Presto Foundation</rights>
+    <entry>
+        <title type="html"><![CDATA[Presto now hosted under the Linux Foundation]]></title>
+        <id>https://prestodb.io/blog/2019/09/23/linux-foundation.html</id>
+        <link href="https://prestodb.io/blog/2019/09/23/linux-foundation.html">
+        </link>
+        <updated>2019-09-23T06:00:00Z</updated>
+        <summary type="html"><![CDATA[<p>We are excited to announce today, in partnership with <a href="https://www.alibaba.com/">Alibaba</a>, <a href="https://www.facebook.com/">Facebook</a>, <a href="https://twitter.com/home">Twitter</a>, and <a href="https://www.uber.com">Uber</a>, the launch of the Presto Foundation, a non-profit organization under the umbrella of the <a href="https://www.linuxfoundation.org/">Linux Foundation</a>.</p> <p>Hosting by the Linux Foundation opens up the Presto...</p>]]></summary>
+        <author>
+            <name>Ariel Weisberg</name>
+            <uri>https://www.linkedin.com/in/ariel-weisberg-a5b6899</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Memory Management in Presto]]></title>
         <id>https://prestodb.io/blog/2019/08/19/memory-tracking.html</id>

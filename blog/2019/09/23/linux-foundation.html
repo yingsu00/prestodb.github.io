@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Presto now hosted under the Linux Foundation · </title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="We are excited to announce today, in partnership with [Alibaba](https://www.alibaba.com/), [Facebook](https://www.facebook.com/), [Twitter](https://twitter.com/home), and [Uber](https://www.uber.com), the launch of the Presto Foundation, a non-profit organization under the umbrella of the [Linux Foundation](https://www.linuxfoundation.org/)."/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Presto now hosted under the Linux Foundation · "/><meta property="og:type" content="website"/><meta property="og:url" content="https://prestodb.io/blog/2019/09/23/linux-foundation"/><meta property="og:description" content="We are excited to announce today, in partnership with [Alibaba](https://www.alibaba.com/), [Facebook](https://www.facebook.com/), [Twitter](https://twitter.com/home), and [Uber](https://www.uber.com), the launch of the Presto Foundation, a non-profit organization under the umbrella of the [Linux Foundation](https://www.linuxfoundation.org/)."/><meta property="og:image" content="https://prestodb.io/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://prestodb.io/img/docusaurus.png"/><link rel="shortcut icon" href="/img/presto-logo.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/presto.png" alt=""/><h2 class="headerTitleWithLogo"></h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/overview.html" target="_self">OVERVIEW</a></li><li class=""><a href="/docs/current" target="_self">DOCS</a></li><li class=""><a href="/index.html" target="_self">BLOG</a></li><li class=""><a href="/faq.html" target="_self">FAQ</a></li><li class=""><a href="/community.html" target="_self">COMMUNITY</a></li><li class=""><a href="/resources.html" target="_self">RESOURCES</a></li><li class=""><a href="https://github.com/facebook/presto" target="_self">GITHUB</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Recent Posts</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Recent Posts</h3><ul class=""><li class="navListItem navListItemActive"><a class="navItem" href="/blog/2019/09/23/linux-foundation">Presto now hosted under the Linux Foundation</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/08/19/memory-tracking">Memory Management in Presto</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/08/05/presto-unlimited-mpp-database-at-scale">Presto Unlimited: MPP SQL Engine at Scale</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/07/23/complete-table-scan">Complete Table Scan: A Quantitative Assessment</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/06/29/everything-you-always-wanted-to-do-in-a-table-scan">Everything You Always Wanted To Do in Table Scan</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer postContainer blogContainer"><div class="wrapper"><div class="lonePost"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle"><a href="/blog/2019/09/23/linux-foundation">Presto now hosted under the Linux Foundation</a></h1><p class="post-meta">September 23, 2019</p><div class="authorBlock"><p class="post-authorName"><a href="https://www.linkedin.com/in/ariel-weisberg-a5b6899" target="_blank" rel="noreferrer noopener">Ariel Weisberg</a></p><div class="authorPhoto"><a href="https://www.linkedin.com/in/ariel-weisberg-a5b6899" target="_blank" rel="noreferrer noopener"><img src="https://graph.facebook.com/100006183888902/picture/?height=200&amp;width=200" alt="Ariel Weisberg"/></a></div></div></header><div><span><p>We are excited to announce today, in partnership with <a href="https://www.alibaba.com/">Alibaba</a>, <a href="https://www.facebook.com/">Facebook</a>, <a href="https://twitter.com/home">Twitter</a>, and <a href="https://www.uber.com">Uber</a>, the launch of the Presto Foundation, a non-profit organization under the umbrella of the <a href="https://www.linuxfoundation.org/">Linux Foundation</a>.</p>
+<p>Hosting by the Linux Foundation opens up the Presto community to a broader ecosystem of users and contributors. The Presto Foundation's open and neutral governance enables the community to influence Presto's future, which will also make it more attractive to developers. Together, we will raise Presto's performance, scalability, and reliability to new heights that could never have been reached alone.</p>
+<p>This is a new chapter for the Presto open source project. We are very excited for what lies ahead!</p>
+<p><a href="https://www.linuxfoundation.org/uncategorized/2019/09/facebook-uber-twitter-and-alibaba-form-presto-foundation-to-tackle-distributed-data-processing-at-scale/">Full announcement on the Linux Foundation’s website.</a></p>
+<p><a href="https://eng.uber.com/presto-foundation/">Uber's announcement of their participation.</a></p>
+<p><strong>Media coverage</strong></p>
+<ul>
+<li><a href="https://finance.yahoo.com/news/facebook-uber-twitter-alibaba-form-presto-foundation-tackle-130000947.html">Yahoo Finance (Release Syndication)</a></li>
+<li><a href="https://sdtimes.com/data/the-presto-foundation-launches-under-the-linux-foundation/">SD Times</a></li>
+<li><a href="https://siliconangle.com/2019/09/23/presto-establishes-formal-community-linux-foundation/">Silicon Angle</a></li>
+<li><a href="https://www.fiercetelecom.com/telecom/presto-chango-data-query-engine-now-hosted-by-linux-foundation">Fierce Telecom</a></li>
+</ul>
+</span></div></div><div class="blogSocialSection"></div></div><div class="blog-recent"><a class="button" href="/blog">Recent Posts</a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="copyright">Copyright © 2013-2019 Presto Foundation</section></footer></div></body></html>

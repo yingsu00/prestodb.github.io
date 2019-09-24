@@ -4,7 +4,7 @@
         <title> Blog</title>
         <link>https://prestodb.io/blog</link>
         <description>The best place to stay up-to-date with the latest  news and events.</description>
-        <lastBuildDate>Mon, 19 Aug 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 23 Sep 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -13,6 +13,13 @@
             <link>https://prestodb.io/blog</link>
         </image>
         <copyright>Copyright © 2013-2019 Presto Foundation</copyright>
+        <item>
+            <title><![CDATA[Presto now hosted under the Linux Foundation]]></title>
+            <link>https://prestodb.io/blog/2019/09/23/linux-foundation.html</link>
+            <guid>https://prestodb.io/blog/2019/09/23/linux-foundation.html</guid>
+            <pubDate>Mon, 23 Sep 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>We are excited to announce today, in partnership with <a href="https://www.alibaba.com/">Alibaba</a>, <a href="https://www.facebook.com/">Facebook</a>, <a href="https://twitter.com/home">Twitter</a>, and <a href="https://www.uber.com">Uber</a>, the launch of the Presto Foundation, a non-profit organization under the umbrella of the <a href="https://www.linuxfoundation.org/">Linux Foundation</a>.</p> <p>Hosting by the Linux Foundation opens up the Presto...</p>]]></description>
+        </item>
         <item>
             <title><![CDATA[Memory Management in Presto]]></title>
             <link>https://prestodb.io/blog/2019/08/19/memory-tracking.html</link>
