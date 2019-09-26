@@ -1,0 +1,242 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Table Scan: Doing The Right Thing With Structured Types · </title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="In the previous article we saw what gains are possible when filtering early and in the right order. In this article we look at how we do this with nested and structured types."/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Table Scan: Doing The Right Thing With Structured Types · "/><meta property="og:type" content="website"/><meta property="og:url" content="https://prestodb.io/blog/2019/09/26/tablescan-structs"/><meta property="og:description" content="In the previous article we saw what gains are possible when filtering early and in the right order. In this article we look at how we do this with nested and structured types."/><meta property="og:image" content="https://prestodb.io/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://prestodb.io/img/docusaurus.png"/><link rel="shortcut icon" href="/img/presto-logo.png"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/presto.png" alt=""/><h2 class="headerTitleWithLogo"></h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/overview.html" target="_self">OVERVIEW</a></li><li class=""><a href="/docs/current" target="_self">DOCS</a></li><li class=""><a href="/index.html" target="_self">BLOG</a></li><li class=""><a href="/faq.html" target="_self">FAQ</a></li><li class=""><a href="/community.html" target="_self">COMMUNITY</a></li><li class=""><a href="/resources.html" target="_self">RESOURCES</a></li><li class=""><a href="https://github.com/facebook/presto" target="_self">GITHUB</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Recent Posts</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Recent Posts</h3><ul class=""><li class="navListItem navListItemActive"><a class="navItem" href="/blog/2019/09/26/tablescan-structs">Table Scan: Doing The Right Thing With Structured Types</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/09/23/linux-foundation">Presto now hosted under the Linux Foundation</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/08/19/memory-tracking">Memory Management in Presto</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/08/05/presto-unlimited-mpp-database-at-scale">Presto Unlimited: MPP SQL Engine at Scale</a></li><li class="navListItem"><a class="navItem" href="/blog/2019/07/23/complete-table-scan">Complete Table Scan: A Quantitative Assessment</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer postContainer blogContainer"><div class="wrapper"><div class="lonePost"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle"><a href="/blog/2019/09/26/tablescan-structs">Table Scan: Doing The Right Thing With Structured Types</a></h1><p class="post-meta">September 26, 2019</p><div class="authorBlock"><p class="post-authorName"><a href="https://www.linkedin.com/in/orrierling/" target="_blank" rel="noreferrer noopener">Orri Erling</a></p><div class="authorPhoto"><a href="https://www.linkedin.com/in/orrierling/" target="_blank" rel="noreferrer noopener"><img src="https://graph.facebook.com/100026224749124/picture/?height=200&amp;width=200" alt="Orri Erling"/></a></div></div></header><div><span><p>In the previous article we saw what gains are possible when filtering early and in the right order. In this article we look at how we do this with nested and structured types.</p>
+<!--truncate-->
+<p>We use the 100G TPC-H dataset, but now we group top level columns into structs or maps.</p>
+<p>Maps, lists and structs are very common with big data because ETL jobs tend to put all data of interest in a single fact table. If the data involves any schema variability or over 100 or 200 of columns, maps tend to be used instead of top level columns. These can be copied as a unit and adding keys does not require top level schema change with its complications. In this article we mimick these practices by reshaping the TPC-H data.</p>
+<p>The tables are defined as follows:</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> exportlineitem  (
+    orderkey <span class="hljs-built_in">BIGINT</span>,
+    linenumber <span class="hljs-built_in">INTEGER</span>,
+    shipment <span class="hljs-keyword">row</span>(
+        partkey <span class="hljs-built_in">BIGINT</span>,
+        suppkey <span class="hljs-built_in">BIGINT</span>,
+        extendedprice <span class="hljs-keyword">DOUBLE</span>,
+        discount <span class="hljs-keyword">DOUBLE</span>,
+        quantity <span class="hljs-keyword">DOUBLE</span>,
+        shipdate <span class="hljs-built_in">DATE</span>,
+        receiptdate <span class="hljs-built_in">DATE</span>,
+        commitdate <span class="hljs-built_in">DATE</span>,
+        <span class="hljs-keyword">comment</span> <span class="hljs-built_in">VARCHAR</span>,
+    <span class="hljs-keyword">export</span> <span class="hljs-keyword">row</span>(
+        s_nation <span class="hljs-built_in">BIGINT</span>,
+        c_nation <span class="hljs-built_in">BIGINT</span>,
+        is_inside_eu <span class="hljs-built_in">INTEGER</span>,
+        is_restricted <span class="hljs-built_in">INTEGER</span>,
+        license <span class="hljs-keyword">row</span>(
+            applydate <span class="hljs-built_in">DATE</span>,
+            grantdate <span class="hljs-built_in">DATE</span>,
+            filing_no <span class="hljs-built_in">BIGINT</span>,
+            <span class="hljs-keyword">comment</span> <span class="hljs-built_in">VARCHAR</span>))
+)
+<span class="hljs-keyword">WITH</span> (
+    <span class="hljs-keyword">format</span> = <span class="hljs-string">'ORC'</span>
+);
+</code></pre>
+<p>The <code>shipment</code> struct has the non-null top-level columns we all have come to know and love. The <code>export</code> struct is null if the customer<code>and supplier nations are the same and present otherwise. A fraction of the rows have an additional nested export</code>license` struct.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> lineitem_map (
+    orderkey <span class="hljs-built_in">BIGINT</span>,
+    linenumber <span class="hljs-built_in">INTEGER</span>,
+    ints <span class="hljs-keyword">map</span>(<span class="hljs-built_in">INTEGER</span>, <span class="hljs-built_in">BIGINT</span>),
+    strs <span class="hljs-keyword">map</span>(<span class="hljs-built_in">VARCHAR</span>, <span class="hljs-built_in">VARCHAR</span>)
+)
+<span class="hljs-keyword">WITH</span> (
+    <span class="hljs-keyword">format</span> = <span class="hljs-string">'ORC'</span>
+);
+</code></pre>
+<p>This table has a map of 12 integers in <code>ints</code> and 5 strings in <code>strs</code>. The key is the column ordinal number in the original <code>lineitem</code> table as an integer in <code>ints</code> and as a string in <code>strs</code>.</p>
+<p>Like before, the tables are in ORC V2 and are compressed with Snappy. We show the Aria and baseline times as wall time seconds / CPU seconds, labeled with Aria: and Baseline: respectively. The queries were run on a desktop machine with two sockets and four hyperthreaded Skylake cores per socket clocked at 3.5GHz.</p>
+<p>First we compare performance of top level columns to performance of columns embedded in a non-null struct:</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*)
+<span class="hljs-keyword">FROM</span> lineitem
+<span class="hljs-keyword">WHERE</span> partkey <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">1000000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">2000000</span> <span class="hljs-keyword">AND</span> suppkey <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">100000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">200000</span> <span class="hljs-keyword">AND</span> extendedprice &gt; <span class="hljs-number">0</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>4</td><td>35</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>7</td><td>80</td><td>2.28</td></tr>
+</tbody>
+</table>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*)
+<span class="hljs-keyword">FROM</span> exportlineitem
+<span class="hljs-keyword">WHERE</span> shipment.partkey <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">1000000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">2000000</span> <span class="hljs-keyword">AND</span> shipment.suppkey <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">100000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">200000</span> <span class="hljs-keyword">AND</span> shipment.extendedprice &gt; <span class="hljs-number">0</span> ;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>4</td><td>35</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>16</td><td>227</td><td>6.5</td></tr>
+</tbody>
+</table>
+<p>We notice that for Aria it makes no difference whether the filtered columns are top level or in a non-null struct. We also note that none of the columns are materialized by Aria, since these are only filtered on, but they are materialized by baseline Presto.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*), <span class="hljs-keyword">SUM</span>(shipment.extendedprice)
+<span class="hljs-keyword">FROM</span> exportlineitem
+<span class="hljs-keyword">WHERE</span> shipment.partkey <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">1000000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">2000000</span> <span class="hljs-keyword">AND</span> shipment.suppkey <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">100000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">200000</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>4</td><td>34</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>18</td><td>253</td><td>7.44</td></tr>
+</tbody>
+</table>
+<p>Now, instead of having a filter that is always true, we retrieve the value of <code>extendedprice</code> and materialize a struct. We only materialize 1% of the structs with this predicate, and the struct only has the <code>extendedprice</code> column filled in. The cost of materialization for Aria is within the margin of error. We could of course, since we only access fields of the struct and not the whole struct, elide materializing the struct and only materialize the component columns. But the gain of this last optimization will not yield much improvement unless a larger percentage of the values are materialized and/or the struct to materialize has many fields.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*), <span class="hljs-keyword">SUM</span>(shipment.extendedprice), <span class="hljs-keyword">COUNT</span>(export.license.filing_no)
+<span class="hljs-keyword">FROM</span> exportlineitem
+<span class="hljs-keyword">WHERE</span> shipment.suppkey <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">200000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">400000</span> <span class="hljs-keyword">AND</span> shipment.quantity &lt; <span class="hljs-number">10</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>10</td><td>58</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>30</td><td>330</td><td>5.68</td></tr>
+</tbody>
+</table>
+<p>Here we add a second struct to the mix. We filter on members of one struct and return a field, <code>filing_no</code>, which is wrapped inside two structs. Both the <code>export</code> struct and the <code>license</code> struct inside it are nullable, i.e. not all shipments are international and not all export shipments need a license.
+This takes longer because 4x more rows are returned in order to highlight the cost of handling null flags. We must read two levels of null flags, one for <code>export</code> and the other for the <code>license</code> substruct. Then we read the filing number for the positions where there is a <code>license</code> and fill in a null for the case where either <code>license</code> or the enclosing <code>export</code> struct is null.</p>
+<h1><a class="anchor" aria-hidden="true" id="experiments"></a><a href="#experiments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Experiments</h1>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">SUM</span>(shipment.extendedprice), <span class="hljs-keyword">COUNT</span>(export.license.filing_no)
+<span class="hljs-keyword">FROM</span> exportlineitem
+<span class="hljs-keyword">WHERE</span> shipment.partkey <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">200000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">400000</span> <span class="hljs-keyword">AND</span> shipment.quantity &lt; <span class="hljs-number">10</span> <span class="hljs-keyword">AND</span> export.s_nation <span class="hljs-keyword">IN</span> (<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">6</span>) <span class="hljs-keyword">AND</span> export.c_nation = <span class="hljs-number">11</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>5.6</td><td>49.8</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>30</td><td>309</td><td>6.20</td></tr>
+</tbody>
+</table>
+<p>Here we add a filter on <code>export</code>. The filters within structs are reorderable as well as the top level structs. We find that the new filter does not negatively impact running time and in fact can improve it. The best filter is evaluated first and after this all column access is sparse and only the data at interesting positions gets touched.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*)
+<span class="hljs-keyword">FROM</span> lineitem_map
+<span class="hljs-keyword">WHERE</span> ints[<span class="hljs-number">2</span>] <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">1000000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">2000000</span> <span class="hljs-keyword">AND</span> ints[<span class="hljs-number">3</span>] <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">100000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">200000</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>35</td><td>422</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>50</td><td>706</td><td>1.67</td></tr>
+</tbody>
+</table>
+<p>This case corresponds to a <code>lineitem</code> table represented as a map. This would be common if this were the feature vector for a machine learning use case, except that we would typically have hundreds of keys per map instead of the 12 here. we do the same thing as in the first query but use a direct encoded map instead. This is noticeably slower than the struct case because we must read through all the keys even if we do not look at them. However only the values for keys that are accessed need to be read. Thus we do not save in decompression but do save in materialization and filtering. Internally, this makes a filter <code>ints.key IN (2, 3)</code>. This selects the positions in the values column that we look at. Then we make a list of filters to apply to these positions. Different positions have a different filter.  There is an extra trick in this: If there are <code>n</code> filters, e.g. 2 for 2 values that we look at out of a total of 12 values in each map and the <code>ith</code> filter is false, then we can fail the next <code>n - i</code> filters without even looking at the data.</p>
+<p>Because the map is only filtered on, we do not create any <code>MapBlock</code> at any point in the query.</p>
+<p>Processing the positional filter is only around 5% of the query CPU. The bulk goes into decoding and skipping over the ORC columns for keys and values.</p>
+<p>The Facebook DWRF addition of flat map brings this again into the struct range. A flat map is a columnar representation where we have a separate column for each key that occurs at least once within a stripe. This is much like the representation for a struct, except that nested columns have an extra flag that tells whether they are present in each of the maps.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*), <span class="hljs-keyword">SUM</span>(ints[<span class="hljs-number">6</span>])
+<span class="hljs-keyword">FROM</span> lineitem_map
+<span class="hljs-keyword">WHERE</span> ints[<span class="hljs-number">2</span>] <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">1000000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">2000000</span> <span class="hljs-keyword">AND</span> ints[<span class="hljs-number">3</span>] <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">100000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">200000</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>37</td><td>476</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>55</td><td>710</td><td>1.49</td></tr>
+</tbody>
+</table>
+<p>When we use values in a map outside of simple filters on these values, we need to actually construct a map  column and return it from table scan to the next operator. But here we know that only key 6 is actually used by the query, so we can leave out the 11 other values that would be in the map. This takes a little longer than the previous query but the extra cost is not very high because the resulting map only has the entry for key 6 filled in. The <code>MapBlock</code> and its hash tables are thus only 1/12th of what they would otherwise be.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*), <span class="hljs-keyword">SUM</span>(ints[<span class="hljs-number">6</span>])
+<span class="hljs-keyword">FROM</span> lineitem_map
+<span class="hljs-keyword">WHERE</span> ints[<span class="hljs-number">2</span>] <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">1000000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">2000000</span> <span class="hljs-keyword">AND</span> ints[<span class="hljs-number">3</span>] <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">100000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">200000</span> <span class="hljs-keyword">AND</span> strs[<span class="hljs-string">'13'</span>] = <span class="hljs-string">'AIR'</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>45</td><td>572</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>76</td><td>1080</td><td>1.88</td></tr>
+</tbody>
+</table>
+<p>Here we add another map to look at. The relative gain against <code>LazyBlock</code> is now higher because baseline materializes the <code>strs</code> map for all rows and all keys while the access is fairly sparse.  Also, making the hash table for all the string keys is very expensive and generates a lot of garbage in single-use <code>Slices</code>. Here we do not materialize any string map but just look at the appropriate places in the value column. The value column must still be uncompressed, which takes time since this contains the <code>comment</code> column of the original table. The high cardinality of <code>comment</code> also prevents dictionary encoding for the values. The keys on the other hand are encoded as a string dictionary.</p>
+<pre><code class="hljs css language-sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">COUNT</span>(*), <span class="hljs-keyword">SUM</span>(ints[<span class="hljs-number">6</span>])
+<span class="hljs-keyword">FROM</span> lineitem_map
+<span class="hljs-keyword">WHERE</span> ints[<span class="hljs-number">2</span>] + <span class="hljs-number">1</span> <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">1000000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">2000000</span> <span class="hljs-keyword">AND</span> ints[<span class="hljs-number">3</span>] + <span class="hljs-number">1</span> <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">100000</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">200000</span> <span class="hljs-keyword">AND</span> strs[<span class="hljs-string">'15'</span>] <span class="hljs-keyword">LIKE</span> <span class="hljs-string">'%theodol%'</span>;
+</code></pre>
+<table>
+<thead>
+<tr><th>Version</th><th>Wall time (seconds)</th><th>CPU time (seconds)</th><th>Baseline CPU / Aria CPU</th></tr>
+</thead>
+<tbody>
+<tr><td>Aria</td><td>51</td><td>703</td><td>1.0</td></tr>
+<tr><td>Baseline</td><td>77</td><td>1083</td><td>1.54</td></tr>
+</tbody>
+</table>
+<p>Here we evaluate code against the maps, hence we cannot elide materializing these. We still win because the <code>strs</code> map is sparsely accessed and only the keys that are actually needed get extracted into <code>MapBlock</code> instances.
+`</p>
+<h2><a class="anchor" aria-hidden="true" id="try-aria"></a><a href="#try-aria" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Try Aria</h2>
+<p>The prototype of Aria is <a href="https://github.com/aweisberg/presto/tree/tablescan-structs">available</a> to experiment with along with <a href="https://github.com/aweisberg/presto/blob/tablescan-structs/BENCHMARK.md">instructions</a> on how to try these queries yourself.</p>
+<p>The ideas presented here are currently being integrated into mainline Presto.</p>
+<h1><a class="anchor" aria-hidden="true" id="conclusions"></a><a href="#conclusions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Conclusions</h1>
+<p>We see that pruning subfields and map keys produces solid value and as one would expect never loses. But since we must still uncompress and skip over all the map keys and values, the gains are less for maps as opposed to structs. Maps are especially common with machine learning applications where these encode the feature vector for model training.  We commonly see maps of several thousand keys, of which a handful are accessed. Thus the gains in these cases tend to be higher than seen here with small maps.</p>
+<p>The 'schemaless struct', i.e. flat map will equalize the situation.</p>
+<p>In the next installment we will look at the experience gained in building and testing this functionality.  We will see where the complexities and pitfalls lie and talk about some of the surprises and catches we met when testing this on production workload.</p>
+</span></div></div><div class="blogSocialSection"></div></div><div class="blog-recent"><a class="button" href="/blog">Recent Posts</a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#try-aria">Try Aria</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="copyright">Copyright © 2013-2019 Presto Foundation</section></footer></div></body></html>

@@ -4,7 +4,7 @@
         <title> Blog</title>
         <link>https://prestodb.io/blog</link>
         <description>The best place to stay up-to-date with the latest  news and events.</description>
-        <lastBuildDate>Mon, 23 Sep 2019 06:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 26 Sep 2019 06:00:00 GMT</lastBuildDate>
         <docs>http://blogs.law.harvard.edu/tech/rss</docs>
         <generator>Feed for Node.js</generator>
         <image>
@@ -13,6 +13,14 @@
             <link>https://prestodb.io/blog</link>
         </image>
         <copyright>Copyright © 2013-2019 Presto Foundation</copyright>
+        <item>
+            <title><![CDATA[Table Scan: Doing The Right Thing With Structured Types]]></title>
+            <link>https://prestodb.io/blog/2019/09/26/tablescan-structs.html</link>
+            <guid>https://prestodb.io/blog/2019/09/26/tablescan-structs.html</guid>
+            <pubDate>Thu, 26 Sep 2019 06:00:00 GMT</pubDate>
+            <description><![CDATA[<p>In the previous article we saw what gains are possible when filtering early and in the right order. In this article we look at how we do this with nested and structured types.</p>
+]]></description>
+        </item>
         <item>
             <title><![CDATA[Presto now hosted under the Linux Foundation]]></title>
             <link>https://prestodb.io/blog/2019/09/23/linux-foundation.html</link>
