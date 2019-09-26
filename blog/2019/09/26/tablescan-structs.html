@@ -87,7 +87,7 @@
     <span class="hljs-keyword">format</span> = <span class="hljs-string">'ORC'</span>
 );
 </code></pre>
-<p>The <code>shipment</code> struct has the non-null top-level columns we all have come to know and love. The <code>export</code> struct is null if the customer<code>and supplier nations are the same and present otherwise. A fraction of the rows have an additional nested export</code>license` struct.</p>
+<p>The <code>shipment</code> struct has the non-null top-level columns we all have come to know and love. The <code>export</code> struct is null if the customer and supplier nations are the same and present otherwise. A fraction of the rows have an additional nested export <code>license</code> struct.</p>
 <pre><code class="hljs css language-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> lineitem_map (
     orderkey <span class="hljs-built_in">BIGINT</span>,
     linenumber <span class="hljs-built_in">INTEGER</span>,
