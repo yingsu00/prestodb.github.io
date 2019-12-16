@@ -29,7 +29,7 @@ At the end of the day, technology and technical direction is what keeps a commun
 
 With our guiding principles in mind, the PF Governing Board developed six strategic goals to guide our growth in 2020. The goals, listed in no particular order, below, are fluid and meant to evolve over time with [input from the community](https://github.com/prestodb/foundation):
 
-### Unify Presto under one neutral and [openly governe**d](https://github.com/prestodb/foundation/blob/master/Presto%20Technical%20Charter%2020191015.pdf) community
+### Unify Presto under one neutral and [openly governed](https://github.com/prestodb/foundation/blob/master/Presto%20Technical%20Charter%2020191015.pdf) community
 
 By establishing a neutral and openly governed body to help incorporate new contributions to Presto, we can facilitate the open sourcing and maintenance of these updates to the software, and in turn, provide great benefit to Presto’s users. Additionally, unifying Presto under one community will enable greater adoption and collaboration with benefits beyond the foundation itself.
 
